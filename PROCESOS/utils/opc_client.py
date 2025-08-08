@@ -1,4 +1,6 @@
 from opcua import Client, ua
+from opcua.common.subscription import SubHandler
+from threading import Lock # hilos
 import logging
 
 
@@ -8,6 +10,10 @@ class OPCClient:
         self.client = Client(self.url)
         self.objects_node = None
         self.connected = False
+        # Alarmas
+        self.subscriptions = {} 
+        self.alarm_states = {1: False, 2: False, 3: False, 4: False}
+        self._lock = Lock()
 
     def connect(self):
         try:
@@ -21,6 +27,8 @@ class OPCClient:
 
     def disconnect(self):
         try:
+            for sub in self.subscriptions.values(): # eliminar subscripciones.
+                sub["subscription"].delete()
             self.client.disconnect()
             self.connected = False
             print("Desconectado del servidor OPC UA")
@@ -61,7 +69,41 @@ class OPCClient:
         except Exception as e:
             logging.warning(f"Error al escribir razón gamma {ratio_id}: {e}")
 
+    def subscribe_to_tank_level(self, tank_id, threshold=10.0):
+        """
+        Se suscribe a los cambios de nivel del tanque `tank_id`.
+        Si el nivel baja del `threshold`, lanza una alarma.
+        """
+        try:
+            path = [f"1:Proceso Tanques", "1:Tanques", f"1:Tanque{tank_id}", "1:h"]
+            node = self.objects_node.get_child(path)
+            handler = AlarmHandler(threshold=threshold, tank_id=tank_id)
+            subscription_obj = self.client.create_subscription(1000, handler)
+            handle = subscription_obj.subscribe_data_change(node)
 
+            self.subscriptions[tank_id] = {
+                "subscription": subscription_obj,
+                "handle": handle,
+                "node": node
+            }
+
+            print(f"🟢 Subscrito a Tanque {tank_id} (umbral = {threshold} cm)")
+        except Exception as e:
+            logging.warning(f"Error al subscribirse al Tanque {tank_id}: {e}")
+
+# Clase que maneja los eventos de suscripción
+class AlarmHandler:
+    def __init__(self, threshold=10.0, tank_id=1, client_ref=None):
+        self.threshold = threshold
+        self.tank_id = tank_id
+        self.client_ref = client_ref
+
+    def datachange_notification(self, node, val, data):
+        if self.client_ref:
+            with self.client_ref._lock:
+                self.client_ref.alarm_states[self.tank_id] = (val < self.threshold)
+
+opc_client_instance = OPCClient()
 # DEBUGG (solo si se ejecuta directamente)
 if __name__ == "__main__":
     opc = OPCClient()

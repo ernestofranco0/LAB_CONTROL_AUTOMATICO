@@ -51,6 +51,9 @@ def create_layout():
                         }
                     }
                 ),
+                # Alarmas
+                html.Div(id='alarma-tanques', style={'color': 'red', 'fontWeight': 'bold', 'textAlign': 'center'}),
+                dcc.Interval(id='intervalo-alarmas', interval=1000, n_intervals=0),
 
                 html.H4("Voltajes Aplicados a las Válvulas"),
                 dcc.Graph(

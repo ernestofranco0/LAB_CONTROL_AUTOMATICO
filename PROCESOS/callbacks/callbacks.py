@@ -1,6 +1,8 @@
 from dash import Input, Output
+from dash import ctx
 import plotly.graph_objs as go
 import numpy as np
+from utils.opc_client import opc_client_instance 
 
 def register_callbacks(app):
 
@@ -31,3 +33,20 @@ def register_callbacks(app):
             build_fig(h3, 'Nivel Tanque 3'),
             build_fig(h4, 'Nivel Tanque 4'),
         )
+
+def register_alarm_callback(app):
+    @app.callback(
+        Output('alarma-tanques', 'children'),
+        Input('intervalo-alarmas', 'n_intervals')
+    )
+    def actualizar_alarmas(n):
+        alarmas = []
+        with opc_client_instance._lock:
+            for tanque, estado in opc_client_instance.alarm_states.items():
+                if estado:
+                    alarmas.append(f"⚠️ Tanque {tanque} bajo nivel crítico")
+
+        if alarmas:
+            return " | ".join(alarmas)
+        else:
+            return ""

@@ -13,3 +13,4 @@ scada_dash/
 ├── assets/                       # archivos CSS, imágenes
 │
 └── requirements.txt              # dependencias del entorno
+
