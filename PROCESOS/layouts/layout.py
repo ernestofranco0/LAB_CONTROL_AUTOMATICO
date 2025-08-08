@@ -62,6 +62,12 @@ def create_layout():
                             'yaxis': {'title': 'Voltaje [V]'}
                         }
                     }
+                ),
+                # Intervalo de actualización automática
+                dcc.Interval(
+                    id='interval-update',
+                    interval=1000,  # 1 segundo
+                    n_intervals=0
                 )
             ]),
 
