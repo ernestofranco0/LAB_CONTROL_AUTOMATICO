@@ -2,7 +2,7 @@ from dash import Input, Output, State, ctx
 import plotly.graph_objs as go
 import numpy as np
 from utils.opc_client import opc_client_instance 
-
+from collections import deque
 
 def register_callbacks(app):
 
@@ -80,14 +80,15 @@ def register_callbacks(app):
             return f"⚠️ Error al leer valores actuales: {e}"
 
 def register_alarm_callback(app):
-    @app.callback(
-        Output('alarma-tanques', 'children'),
-        Input('intervalo-alarmas', 'n_intervals')
-    )
-    def actualizar_alarmas(n):
-        mensajes = []
-        with opc_client_instance._lock:
-            for tanque, estado in opc_client_instance.alarm_states.items():
-                if estado:
-                    mensajes.append(f"⚠️ Tanque {tanque} bajo nivel crítico")
-        return " | ".join(mensajes) if mensajes else ""
+    pass
+    # @app.callback(
+    #     Output('alarma-tanques', 'children'),
+    #     Input('intervalo-alarmas', 'n_intervals')
+    # )
+    # def actualizar_alarmas(n):
+    #     mensajes = []
+    #     with opc_client_instance._lock:
+    #         for tanque, estado in opc_client_instance.alarm_states.items():
+    #             if estado:
+    #                 mensajes.append(f"⚠️ Tanque {tanque} bajo nivel crítico")
+    #     return " | ".join(mensajes) if mensajes else ""

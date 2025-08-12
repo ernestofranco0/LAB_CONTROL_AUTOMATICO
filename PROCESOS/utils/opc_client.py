@@ -208,13 +208,6 @@ class Cliente():
 
 
     def escribir(self, mv, valor):
-        self.root = self.client.get_root_node()
-        self.objects = self.client.get_objects_node()
-        self.Tanques = self.objects.get_child(['2:Proceso_Tanques','2:Tanques'])
-        self.Valvulas = self.objects.get_child(['2:Proceso_Tanques', '2:Valvulas'])
-        self.Razones = self.objects.get_child(['2:Proceso_Tanques', '2:Razones'])
-        
-
         # setear pumps
         # 1. Accede al nodo
         if mv == "valvula1":
@@ -260,7 +253,7 @@ class Cliente():
         except:
             self.client.disconnect()
             print('Cliente no se ha podido conectar')
-
+opc_client_instance = Cliente("opc.tcp://192.168.1.115:4840/freeopcua/server/", suscribir_eventos=True, SubHandler=SubHandler)
 if __name__ == "__main__":
     cliente = Cliente("opc.tcp://192.168.1.115:4840/freeopcua/server/", suscribir_eventos=True, SubHandler=SubHandler)
     cliente.conectar()
