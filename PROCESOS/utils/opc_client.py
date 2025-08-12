@@ -69,6 +69,24 @@ class OPCClient:
         except Exception as e:
             logging.warning(f"Error al escribir razón gamma {ratio_id}: {e}")
 
+    def read_valve_voltage(self, valve_id):
+        try:
+            path = [f"1:Proceso Tanques", "1:Valvulas", f"1:Valvula{valve_id}", "1:u"]
+            node = self.objects_node.get_child(path)
+            return node.get_value()
+        except Exception as e:
+            logging.warning(f"Error al leer voltaje de válvula {valve_id}: {e}")
+            return None
+
+    def read_flow_ratio(self, ratio_id):
+        try:
+            path = [f"1:Proceso Tanques", "1:Razones", f"1:Razon{ratio_id}", "1:gamma"]
+            node = self.objects_node.get_child(path)
+            return node.get_value()
+        except Exception as e:
+            logging.warning(f"Error al leer razón de flujo {ratio_id}: {e}")
+            return None
+
     def subscribe_to_tank_level(self, tank_id, threshold=10.0):
         """
         Se suscribe a los cambios de nivel del tanque `tank_id`.

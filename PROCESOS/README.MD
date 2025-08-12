@@ -10,6 +10,7 @@ scada_dash/
 │   └── callbacks.py
 ├── utils/
 │   └── opc_client.py             # conexión y funciones relacionadas a OPC UA
+│   └── pid_controller.py
 ├── assets/                       # archivos CSS, imágenes
 │
 └── requirements.txt              # dependencias del entorno

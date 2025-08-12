@@ -78,15 +78,33 @@ def create_layout():
             dcc.Tab(label='Modo Manual', children=[
                 html.Br(),
                 html.H4("Control Manual de Válvulas y Flujo"),
+                
                 dbc.Row([
-                    dbc.Col(dbc.Input(id='manual-v1', type='number', placeholder='Voltaje V1 (V)'), width=6),
-                    dbc.Col(dbc.Input(id='manual-v2', type='number', placeholder='Voltaje V2 (V)'), width=6),
+                    dbc.Col(dbc.Input(id='manual-v1', type='number', placeholder='Voltaje V1 (V)', min=0, max=10), width=6),
+                    dbc.Col(dbc.Input(id='manual-v2', type='number', placeholder='Voltaje V2 (V)', min=0, max=10), width=6),
                 ]),
+                
                 html.Br(),
+
                 dbc.Row([
-                    dbc.Col(dbc.Input(id='manual-gamma1', type='number', placeholder='Razón γ1'), width=6),
-                    dbc.Col(dbc.Input(id='manual-gamma2', type='number', placeholder='Razón γ2'), width=6),
+                    dbc.Col(dbc.Input(id='manual-gamma1', type='number', placeholder='Razón γ1', min=0, max=1, step=0.01), width=6),
+                    dbc.Col(dbc.Input(id='manual-gamma2', type='number', placeholder='Razón γ2', min=0, max=1, step=0.01), width=6),
                 ]),
+
+                html.Br(),
+
+                html.Div(id='valores-actuales-manual', style={'textAlign': 'center', 'color': 'gray'}),
+                dcc.Interval(id='intervalo-manual', interval=1000, n_intervals=0),
+
+                html.Br(),
+
+                dbc.Row([
+                    dbc.Col(dbc.Button("Aplicar", id='aplicar-manual', color='primary', n_clicks=0), width=6),
+                ]),
+                
+                html.Br(),
+
+                html.Div(id='mensaje-manual', style={'color': 'green', 'textAlign': 'center'})
             ]),
 
             # 3. Modo Automático
