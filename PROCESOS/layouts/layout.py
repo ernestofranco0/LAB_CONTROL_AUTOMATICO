@@ -96,6 +96,15 @@ def create_layout():
                 html.Div(id='valores-actuales-manual', style={'textAlign': 'center', 'color': 'gray'}),
                 dcc.Interval(id='intervalo-manual', interval=1000, n_intervals=0),
 
+                html.Img(
+                    src='/assets/sistema.png',
+                    style={
+                        'width': '30%',
+                        'display': 'block',
+                        'margin': '0 auto'
+                    }
+                ),
+
                 html.Br(),
 
                 dbc.Row([
