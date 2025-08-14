@@ -10,68 +10,28 @@ def create_layout():
             dcc.Tab(label='Visualización', children=[
                 html.Br(),
                 html.H4("Niveles de los Tanques"),
-                
-                dcc.Graph(
-                    id='nivel-tanque-1',
-                    figure={
-                        'layout': {
-                            'title': 'Nivel Tanque 1',
-                            'xaxis': {'title': 'Tiempo [s]'},
-                            'yaxis': {'title': 'Nivel [cm]'}
-                        }
-                    }
-                ),
-                dcc.Graph(
-                    id='nivel-tanque-2',
-                    figure={
-                        'layout': {
-                            'title': 'Nivel Tanque 2',
-                            'xaxis': {'title': 'Tiempo [s]'},
-                            'yaxis': {'title': 'Nivel [cm]'}
-                        }
-                    }
-                ),
-                dcc.Graph(
-                    id='nivel-tanque-3',
-                    figure={
-                        'layout': {
-                            'title': 'Nivel Tanque 3',
-                            'xaxis': {'title': 'Tiempo [s]'},
-                            'yaxis': {'title': 'Nivel [cm]'}
-                        }
-                    }
-                ),
-                dcc.Graph(
-                    id='nivel-tanque-4',
-                    figure={
-                        'layout': {
-                            'title': 'Nivel Tanque 4',
-                            'xaxis': {'title': 'Tiempo [s]'},
-                            'yaxis': {'title': 'Nivel [cm]'}
-                        }
-                    }
-                ),
+
+                dcc.Graph(id='nivel-tanque-1'),
+                dcc.Graph(id='nivel-tanque-2'),
+                dcc.Graph(id='nivel-tanque-3'),
+                dcc.Graph(id='nivel-tanque-4'),
+
+                html.H4("Voltajes Aplicados a las Válvulas"),
+                dcc.Graph(id='voltaje-valvula-1'),
+                dcc.Graph(id='voltaje-valvula-2'),
+
+                html.H4("Razones de Flujo"),
+                dcc.Graph(id='razon-flujo-1'),
+                dcc.Graph(id='razon-flujo-2'),
+
+                html.Hr(),
+
                 # Alarmas
                 html.Div(id='alarma-tanques', style={'color': 'red', 'fontWeight': 'bold', 'textAlign': 'center'}),
                 dcc.Interval(id='intervalo-alarmas', interval=1000, n_intervals=0),
 
-                html.H4("Voltajes Aplicados a las Válvulas"),
-                dcc.Graph(
-                    id='voltajes-valvulas',
-                    figure={
-                        'layout': {
-                            'title': 'Voltajes en Válvulas 1 y 2',
-                            'xaxis': {'title': 'Tiempo [s]'},
-                            'yaxis': {'title': 'Voltaje [V]'}
-                        }
-                    }
-                ),
-                # Intervalo de actualización automática
-                dcc.Interval(
-                    id='interval-update',
-                    interval=1000,  # 1 segundo
-                    n_intervals=0
-                )
+                # Intervalo general de actualización automática
+                dcc.Interval(id='interval-update', interval=1000, n_intervals=0)
             ]),
 
             # 2. Modo Manual

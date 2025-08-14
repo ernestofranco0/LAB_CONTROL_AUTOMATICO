@@ -22,7 +22,11 @@ def register_callbacks(app):
         'h1': deque(maxlen=buffer_size),
         'h2': deque(maxlen=buffer_size),
         'h3': deque(maxlen=buffer_size),
-        'h4': deque(maxlen=buffer_size)
+        'h4': deque(maxlen=buffer_size),
+        'v1': deque(maxlen=buffer_size),
+        'v2': deque(maxlen=buffer_size),
+        'g1': deque(maxlen=buffer_size),
+        'g2': deque(maxlen=buffer_size)
     }
 
     @app.callback(
@@ -30,6 +34,10 @@ def register_callbacks(app):
         Output('nivel-tanque-2', 'figure'),
         Output('nivel-tanque-3', 'figure'),
         Output('nivel-tanque-4', 'figure'),
+        Output('voltaje-valvula-1', 'figure'),
+        Output('voltaje-valvula-2', 'figure'),
+        Output('razon-flujo-1', 'figure'),
+        Output('razon-flujo-2', 'figure'),
         Input('interval-update', 'n_intervals')
     )
     def update_niveles(n):
@@ -41,19 +49,30 @@ def register_callbacks(app):
             h3 = opc_client_instance.read_tank_level(3)
             h4 = opc_client_instance.read_tank_level(4)
 
-            if None in (h1, h2, h3, h4):
-                raise ValueError("Niveles no disponibles")
+            v1 = opc_client_instance.read_valve_voltage(1)
+            v2 = opc_client_instance.read_valve_voltage(2)
 
+            g1 = opc_client_instance.read_flow_ratio(1)
+            g2 = opc_client_instance.read_flow_ratio(2)
+
+            if None in (h1, h2, h3, h4, v1, v2, g1, g2):
+                raise ValueError("Datos no disponibles")
+
+            # Agregar a historial
             historial['t'].append(t_actual)
             historial['h1'].append(h1)
             historial['h2'].append(h2)
             historial['h3'].append(h3)
             historial['h4'].append(h4)
+            historial['v1'].append(v1)
+            historial['v2'].append(v2)
+            historial['g1'].append(g1)
+            historial['g2'].append(g2)
 
             def build_fig(x, y, title):
                 fig = go.Figure()
                 fig.add_trace(go.Scatter(x=list(x), y=list(y), mode='lines+markers'))
-                fig.update_layout(title=title, xaxis_title='Tiempo [s]', yaxis_title='Nivel [cm]')
+                fig.update_layout(title=title, xaxis_title='Tiempo [s]')
                 return fig
 
             return (
@@ -61,6 +80,10 @@ def register_callbacks(app):
                 build_fig(historial['t'], historial['h2'], 'Nivel Tanque 2'),
                 build_fig(historial['t'], historial['h3'], 'Nivel Tanque 3'),
                 build_fig(historial['t'], historial['h4'], 'Nivel Tanque 4'),
+                build_fig(historial['t'], historial['v1'], 'Voltaje Válvula 1'),
+                build_fig(historial['t'], historial['v2'], 'Voltaje Válvula 2'),
+                build_fig(historial['t'], historial['g1'], 'Razón de Flujo 1'),
+                build_fig(historial['t'], historial['g2'], 'Razón de Flujo 2'),
             )
 
         except Exception as e:
@@ -71,7 +94,6 @@ def register_callbacks(app):
                 return go.Figure().update_layout(
                     title=title,
                     xaxis_title='Tiempo [s]',
-                    yaxis_title='Nivel [cm]',
                     annotations=[{
                         'text': mensaje_error,
                         'xref': 'paper',
@@ -85,7 +107,11 @@ def register_callbacks(app):
                 error_fig('Nivel Tanque 1'),
                 error_fig('Nivel Tanque 2'),
                 error_fig('Nivel Tanque 3'),
-                error_fig('Nivel Tanque 4')
+                error_fig('Nivel Tanque 4'),
+                error_fig('Voltaje Válvula 1'),
+                error_fig('Voltaje Válvula 2'),
+                error_fig('Razón de Flujo 1'),
+                error_fig('Razón de Flujo 2'),
             )
 
     @app.callback(
