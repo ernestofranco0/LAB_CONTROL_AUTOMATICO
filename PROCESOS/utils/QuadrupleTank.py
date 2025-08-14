@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import pygame
 import time
 import sys
-from cliente import Cliente # cliente OPCUA
+from opc_client import Cliente # cliente OPCUA
 import random
 import threading
 
@@ -438,84 +438,119 @@ running = True
 manual = False # Control Manual o automático de las variables
 t = 0
 alturasMatrix = []
-while running:
-    # Actualización del sistema de forma manual
-    if manual:
-        running, u = interfaz.eventos(running, sensibilidad, sistema.volt[0], sistema.volt[1], sistema.gamma[0], sistema.gamma[1])
-        sistema.volt[0] = u['valvula1']
-        sistema.volt[1] = u['valvula2']
-        sistema.gamma[0] = u['razon1']
-        sistema.gamma[1] = u['razon2']
 
-        # Envío de los valores por OPC cuando se está en forma manual
-        # Obtención de los pumps
-        cliente.valvulas['valvula1'].set_value(u['valvula1'])
-        cliente.valvulas['valvula2'].set_value(u['valvula2'])
+tiempos = list()
+altura1 = list()
+altura2 = list()
+altura3 = list()
+altura4 = list()
 
-        # Obtención de los switches
-        cliente.razones['razon1'].set_value(u['razon1'])
-        cliente.razones['razon2'].set_value(u['razon2'])
-    else:
-        volt1 = cliente.valvulas['valvula1'].get_value()
-        volt2 = cliente.valvulas['valvula2'].get_value()
+try:
+    while running:
+        # Actualización del sistema de forma manual
+        if manual:
+            running, u = interfaz.eventos(running, sensibilidad, sistema.volt[0], sistema.volt[1], sistema.gamma[0], sistema.gamma[1])
+            sistema.volt[0] = u['valvula1']
+            sistema.volt[1] = u['valvula2']
+            sistema.gamma[0] = u['razon1']
+            sistema.gamma[1] = u['razon2']
 
-        gamma1 = cliente.razones['razon1'].get_value()
-        gamma2 = cliente.razones['razon2'].get_value()
+            # Envío de los valores por OPC cuando se está en forma manual
+            # Obtención de los pumps
+            cliente.valvulas['valvula1'].set_value(u['valvula1'])
+            cliente.valvulas['valvula2'].set_value(u['valvula2'])
 
-        if volt1 > 1 or volt1 < -1 or volt2 > 1 or volt2 < -1 \
-            or gamma1 > 1 or gamma1 < 0 or gamma2 > 1 or gamma2 < 0:
-            raise ValueError('Valores fuera del rango específicado')
+            # Obtención de los switches
+            cliente.razones['razon1'].set_value(u['razon1'])
+            cliente.razones['razon2'].set_value(u['razon2'])
+        else:
+            volt1 = cliente.valvulas['valvula1'].get_value()
+            volt2 = cliente.valvulas['valvula2'].get_value()
 
-        # interfaz.Automatico(volt1, volt2, gamma1, gamma2)
+            gamma1 = cliente.razones['razon1'].get_value()
+            gamma2 = cliente.razones['razon2'].get_value()
 
-        sistema.volt[0] = volt1
-        sistema.volt[1] = volt2
-        sistema.gamma[0] = gamma1
-        sistema.gamma[1] = gamma2
+            if volt1 > 1 or volt1 < -1 or volt2 > 1 or volt2 < -1 \
+                or gamma1 > 1 or gamma1 < 0 or gamma2 > 1 or gamma2 < 0:
+                raise ValueError('Valores fuera del rango específicado')
 
+            # interfaz.Automatico(volt1, volt2, gamma1, gamma2)
 
-
-
-    # interfaz.screen.blit(interfaz.background, (0, 0))
-    # interfaz.screen.blit(interfaz.textSurf, (0,0))
-
-
-    ####### Simulación del sistema ######
-    if first_it:
-        sistema.ti = time.time()
-        first_it = False
-
-    alturas = sistema.sim()
-
-    ####### Updates interfaz #################
-
-##    # Tanque 1
-##    interfaz.Tank_update(altura=alturas[0], posicion=interfaz.posTank1)
-##
-##    # Tanque 2
-##    interfaz.Tank_update(altura=alturas[1], posicion=interfaz.posTank2)
-##
-##    # Tanque 3
-##    interfaz.Tank_update(altura=alturas[2], posicion=interfaz.posTank3)
-##
-##    # Tanque 4
-##    interfaz.Tank_update(altura=alturas[3], posicion=interfaz.posTank4)
+            sistema.volt[0] = volt1
+            sistema.volt[1] = volt2
+            sistema.gamma[0] = gamma1
+            sistema.gamma[1] = gamma2
 
 
-    ############ UPDATE CLIENTE OPC ##################################
-    cliente.alturas['H1'].set_value(alturas[0])
-    cliente.alturas['H2'].set_value(alturas[1])
-    cliente.alturas['H3'].set_value(alturas[2])
-    cliente.alturas['H4'].set_value(alturas[3])
-
-    cliente.temperaturas['T1'].set_value(22 + random.randrange(-7,7,1))
-    cliente.temperaturas['T2'].set_value(22 + random.randrange(-7,7,1))
-    cliente.temperaturas['T3'].set_value(22 + random.randrange(-7,7,1))
-    cliente.temperaturas['T4'].set_value(22 + random.randrange(-7,7,1))
 
 
-    # pygame.display.flip()
-    # clock.tick(fps)
+        # interfaz.screen.blit(interfaz.background, (0, 0))
+        # interfaz.screen.blit(interfaz.textSurf, (0,0))
 
-# pygame.quit()
 
+        ####### Simulación del sistema ######
+        if first_it:
+            sistema.ti = time.time()
+            first_it = False
+
+        alturas = sistema.sim()
+
+        #print(f"Alturas son: {alturas}")
+        print(
+            "Alturas:  "
+            f"H1: {alturas[0]:>7.5f} | "
+            f"H2: {alturas[1]:>7.5f} | "
+            f"H3: {alturas[2]:>7.5f} | "
+            f"H4: {alturas[3]:>7.5f}"
+        )
+
+        tiempo_actual = time.time()
+        tiempos.append(tiempo_actual)
+        altura1.append(alturas[0])
+        altura2.append(alturas[1])
+        altura3.append(alturas[2])
+        altura4.append(alturas[3])
+
+        ####### Updates interfaz #################
+
+    ##    # Tanque 1
+    ##    interfaz.Tank_update(altura=alturas[0], posicion=interfaz.posTank1)
+    ##
+    ##    # Tanque 2
+    ##    interfaz.Tank_update(altura=alturas[1], posicion=interfaz.posTank2)
+    ##
+    ##    # Tanque 3
+    ##    interfaz.Tank_update(altura=alturas[2], posicion=interfaz.posTank3)
+    ##
+    ##    # Tanque 4
+    ##    interfaz.Tank_update(altura=alturas[3], posicion=interfaz.posTank4)
+
+
+        ############ UPDATE CLIENTE OPC ##################################
+        cliente.alturas['H1'].set_value(alturas[0])
+        cliente.alturas['H2'].set_value(alturas[1])
+        cliente.alturas['H3'].set_value(alturas[2])
+        cliente.alturas['H4'].set_value(alturas[3])
+
+        cliente.temperaturas['T1'].set_value(22 + random.randrange(-7,7,1))
+        cliente.temperaturas['T2'].set_value(22 + random.randrange(-7,7,1))
+        cliente.temperaturas['T3'].set_value(22 + random.randrange(-7,7,1))
+        cliente.temperaturas['T4'].set_value(22 + random.randrange(-7,7,1))
+
+
+        # pygame.display.flip()
+        # clock.tick(fps)
+except KeyboardInterrupt: 
+    print("\n🔴 Interrupción por teclado. Cerrando el programa con seguridad...")    
+finally:
+    import csv  
+    import os   
+    ruta_csv = r"C:\Users\ernes\Desktop\LAB_CONTROL_AUTOMATICO\PROCESOS\data\alturas.csv"
+
+    with open(ruta_csv, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['tiempo', 'h1', 'h2', 'h3', 'h4'])  # encabezado
+        for t, h1, h2, h3, h4 in zip(tiempos, altura1, altura2, altura3, altura4):
+            writer.writerow([t, h1, h2, h3, h4])
+
+    print("CSV guardado en:", os.path.abspath("alturas.csv"))

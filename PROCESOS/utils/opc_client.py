@@ -1,138 +1,3 @@
-# from opcua import Client, ua
-# from opcua.common.subscription import SubHandler
-# from threading import Lock # hilos
-# import logging
-
-
-# class OPCClient:
-#     def __init__(self, url="opc.tcp://192.168.1.115:4840/freeopcua/server/"):
-#         self.url = url
-#         self.client = Client(self.url)
-#         self.root = self.client.get_objects_node()
-#         self.objects_node = self.client.get_objects_node()
-#         self.connected = False
-#         # Alarmas
-#         self.subscriptions = {} 
-#         self.alarm_states = {1: False, 2: False, 3: False, 4: False}
-#         self._lock = Lock()
-
-#     def connect(self):
-#         try:
-#             self.client.connect()
-#             self.objects_node = self.client.get_objects_node()
-#             self.connected = True
-#             print("✅ Conectado al servidor OPC UA")
-#         except Exception as e:
-#             logging.error(f"Error al conectar: {e}")
-#             self.connected = False
-
-#     def disconnect(self):
-#         try:
-#             for sub in self.subscriptions.values(): # eliminar subscripciones.
-#                 sub["subscription"].delete()
-#             self.client.disconnect()
-#             self.connected = False
-#             print("Desconectado del servidor OPC UA")
-#         except Exception as e:
-#             logging.error(f"Error al desconectar: {e}")
-
-#     def read_tank_level(self, tank_id):
-#         """
-#         Lee el nivel del tanque especificado (1 a 4).
-#         """
-#         try:
-#             path = [f"1:Proceso_Tanques", "1:Tanques", f"1:Tanque{tank_id}", "1:h"]
-#             node = self.objects_node.get_child(path)
-#             return node
-#         except Exception as e:
-#             logging.warning(f"Error al leer nivel del Tanque {tank_id}: {e}")
-#             return None
-
-#     def write_valve_voltage(self, valve_id, voltage):
-#         """
-#         Escribe el voltaje (0-10V) a una válvula (1 o 2).
-#         """
-#         try:
-#             path = [f"1:Proceso Tanques", "1:Valvulas", f"1:Valvula{valve_id}", "1:u"]
-#             node = self.objects_node.get_child(path)
-#             node.set_value(ua.Variant(voltage, ua.VariantType.Float))
-#         except Exception as e:
-#             logging.warning(f"Error al escribir voltaje en Válvula {valve_id}: {e}")
-
-#     def write_flow_ratio(self, ratio_id, value):
-#         """
-#         Escribe una razón de flujo gamma (1 o 2).
-#         """
-#         try:
-#             path = [f"1:Proceso Tanques", "1:Razones", f"1:Razon{ratio_id}", "1:gamma"]
-#             node = self.objects_node.get_child(path)
-#             node.set_value(ua.Variant(value, ua.VariantType.Float))
-#         except Exception as e:
-#             logging.warning(f"Error al escribir razón gamma {ratio_id}: {e}")
-
-#     def read_valve_voltage(self, valve_id):
-#         try:
-#             path = [f"1:Proceso Tanques", "1:Valvulas", f"1:Valvula{valve_id}", "1:u"]
-#             node = self.objects_node.get_child(path)
-#             return node.get_value()
-#         except Exception as e:
-#             logging.warning(f"Error al leer voltaje de válvula {valve_id}: {e}")
-#             return None
-
-#     def read_flow_ratio(self, ratio_id):
-#         try:
-#             path = [f"1:Proceso Tanques", "1:Razones", f"1:Razon{ratio_id}", "1:gamma"]
-#             node = self.objects_node.get_child(path)
-#             return node.get_value()
-#         except Exception as e:
-#             logging.warning(f"Error al leer razón de flujo {ratio_id}: {e}")
-#             return None
-
-#     def subscribe_to_tank_level(self, tank_id, threshold=10.0):
-#         """
-#         Se suscribe a los cambios de nivel del tanque `tank_id`.
-#         Si el nivel baja del `threshold`, lanza una alarma.
-#         """
-#         try:
-#             path = [f"1:Proceso Tanques", "1:Tanques", f"1:Tanque{tank_id}", "1:h"]
-#             node = self.objects_node.get_child(path)
-#             handler = AlarmHandler(threshold=threshold, tank_id=tank_id)
-#             subscription_obj = self.client.create_subscription(1000, handler)
-#             handle = subscription_obj.subscribe_data_change(node)
-
-#             self.subscriptions[tank_id] = {
-#                 "subscription": subscription_obj,
-#                 "handle": handle,
-#                 "node": node
-#             }
-
-#             print(f"🟢 Subscrito a Tanque {tank_id} (umbral = {threshold} cm)")
-#         except Exception as e:
-#             logging.warning(f"Error al subscribirse al Tanque {tank_id}: {e}")
-
-# # Clase que maneja los eventos de suscripción
-# class AlarmHandler:
-#     def __init__(self, threshold=10.0, tank_id=1, client_ref=None):
-#         self.threshold = threshold
-#         self.tank_id = tank_id
-#         self.client_ref = client_ref
-
-#     def datachange_notification(self, node, val, data):
-#         if self.client_ref:
-#             with self.client_ref._lock:
-#                 self.client_ref.alarm_states[self.tank_id] = (val < self.threshold)
-
-# #opc_client_instance = OPCClient()
-# # DEBUGG (solo si se ejecuta directamente)
-# if __name__ == "__main__":
-#     opc = OPCClient()
-#     opc.connect()
-#     print("Nivel tanque 1:", opc.read_tank_level(1))
-#     opc.write_valve_voltage(1, 5.0)
-#     opc.write_flow_ratio(1, 0.7)
-#     opc.disconnect()
-
-
 from opcua import ua, Client
 import threading
 import time
@@ -218,13 +83,38 @@ class Cliente():
             valvula2_node = self.Valvulas.get_child(['2:Valvula2', '2:u'])
             # 2. Escribe el valor
             valvula2_node.set_value(ua.Variant(valor, ua.VariantType.Float))
-        elif mv == "razones1":
+        elif mv == "razon1":
             razones1_node = self.Razones.get_child(['2:Razon1', '2:gamma'])
             razones1_node.set_value(ua.Variant(valor, ua.VariantType.Float))
-        elif mv == "razones2":
+        elif mv == "razon2":
             razones2_node = self.Razones.get_child(['2:Razon2', '2:gamma'])
             razones2_node.set_value(ua.Variant(valor, ua.VariantType.Float))  
-                      
+        
+    def read_tank_level(self, tank_id):
+        try:
+            key = f"H{tank_id}"
+            node = self.alturas[key]
+            return float(node.get_value())
+        except Exception as e:
+            print(f"❌ Error al leer nivel del Tanque {tank_id}: {e}")
+            return None
+
+    def read_valve_voltage(self, valvula_id):
+        try:
+            key = f"valvula{valvula_id}"
+            return float(self.valvulas[key].get_value())
+        except Exception as e:
+            print(f"❌ Error al leer voltaje de válvula {valvula_id}: {e}")
+            return None
+
+    def read_flow_ratio(self, razon_id):
+        try:
+            key = f"razon{razon_id}"
+            return float(self.razones[key].get_value())
+        except Exception as e:
+            print(f"❌ Error al leer razón de flujo {razon_id}: {e}")
+            return None
+
     def subscribir_cv(self): # Subscripción a las variables controladas
         self.handler_cv = self.SubHandlerClass()
         self.sub_cv = self.client.create_subscription(self.periodo, self.handler_cv)
@@ -253,7 +143,8 @@ class Cliente():
         except:
             self.client.disconnect()
             print('Cliente no se ha podido conectar')
-opc_client_instance = Cliente("opc.tcp://192.168.1.115:4840/freeopcua/server/", suscribir_eventos=True, SubHandler=SubHandler)
+opc_client_instance = Cliente("opc.tcp://localhost:4840/freeopcua/server/", suscribir_eventos=True, SubHandler=SubHandler)
+opc_client_instance.conectar()
 if __name__ == "__main__":
     cliente = Cliente("opc.tcp://192.168.1.115:4840/freeopcua/server/", suscribir_eventos=True, SubHandler=SubHandler)
     cliente.conectar()

@@ -1,5 +1,6 @@
 class PIDController:
     def __init__(self, Kp, Ki, Kd, setpoint=0, dt=1.0, anti_windup_gain=0.0, output_limits=(0, 10)):
+
         self.Kp = Kp
         self.Ki = Ki
         self.Kd = Kd
@@ -14,11 +15,13 @@ class PIDController:
         self.last_output = 0
 
     def reset(self):
+
         self.integral = 0
         self.prev_error = 0
         self.last_output = 0
 
     def compute(self, measurement):
+        
         error = self.setpoint - measurement
 
         self.integral += error * self.dt
@@ -34,3 +37,11 @@ class PIDController:
         self.prev_error = error
         self.last_output = u
         return u
+    
+    def setParams(self, setKp, setKi, setKd, newSetPoint, setAntiWindupGain):
+
+        self.Kp = setKp
+        self.Ki = setKi
+        self.Kd = setKd
+        self.setpoint = newSetPoint
+        self.anti_windup_gain = setAntiWindupGain

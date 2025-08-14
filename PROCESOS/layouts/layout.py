@@ -133,9 +133,19 @@ def create_layout():
                 html.Br(),
                 dbc.Row([
                     dbc.Col(dbc.Input(id='auto-aw', type='number', placeholder='Anti-Windup Gain'), width=6),
+                ]),
+                html.Br(),
+                dbc.Row([
+                    dbc.Col(html.Button('Aplicar PID', id='aplicar-PID', n_clicks=0), width=6)
+                ]),
+                html.Br(),
+                html.Div(id='modo-automatico', style={'color': 'green', 'textAlign': 'center'}),
+                html.Br(),
+                dbc.Row([
+                    dbc.Col(dbc.Switch(id='modo-switch', label='Activar fase no mínima',value=False), width=6)
                 ])
             ]),
-
+            
             # 4. Configuración y Alarmas
             dcc.Tab(label='Configuración y Alarmas', children=[
                 html.Br(),
