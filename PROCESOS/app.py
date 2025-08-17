@@ -5,7 +5,6 @@ import dash_bootstrap_components as dbc
 from layouts.layout import create_layout
 #Callbacks
 from callbacks.callbacks import register_callbacks
-from callbacks.callbacks import register_alarm_callback
 #OPC
 from utils.opc_client import opc_client_instance
 
@@ -14,7 +13,6 @@ app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP], suppress_callb
 app.layout = create_layout()
 
 register_callbacks(app)
-register_alarm_callback(app)
 
 if __name__ == '__main__':
     app.run(debug=True)

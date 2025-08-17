@@ -71,7 +71,6 @@ class Cliente():
             self.sub_event = self.client.create_subscription(self.periodo, self.handler_event)#Subscripción al evento
             self.handle_event = self.sub_event.subscribe_events(self.obj_event, self.myevent)
 
-
     def escribir(self, mv, valor):
         # setear pumps
         # 1. Accede al nodo
@@ -123,7 +122,6 @@ class Cliente():
         for key, var in self.temperaturas.items():
             self.sub_cv.subscribe_data_change(var)
 
-
     def subscribir_mv(self): # Subscripación a las variables manipuladas
         self.handler_mv = self.SubHandlerClass()
         self.sub_mv = self.client.create_subscription(self.periodo, self.handler_mv)
@@ -131,7 +129,6 @@ class Cliente():
             self.sub_mv.subscribe_data_change(var)
         for key, var in self.razones.items():
             self.sub_mv.subscribe_data_change(var)
-
 
     def conectar(self):
         try:
