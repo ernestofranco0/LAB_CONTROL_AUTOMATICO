@@ -178,6 +178,8 @@ def create_layout():
                             id='export-format',
                             options=[
                                 {'label': 'CSV (texto separado por comas)', 'value': 'csv'},
+                                {'label': 'NPY (No disponible)', 'value': 'npy'},
+                                {'label': 'TXT (No disponible)', 'value': 'txt'},
                             ],
                             value='csv',
                             clearable=False
@@ -206,7 +208,7 @@ def create_layout():
                 dcc.Download(id='download-datos'),
 
                 html.Hr(),
-                html.H5("Vista previa .CSV"),
+                html.H5("Vista previa"),
                 html.Div(id='export-preview', children=html.Small("El callback puede poblar una tabla/resumen aquí.")),
             ]),
         ])
